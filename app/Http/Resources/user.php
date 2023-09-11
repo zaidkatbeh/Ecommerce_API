@@ -15,6 +15,7 @@ class user extends JsonResource
     public function toArray(Request $request): array
     {
         return [
+            'user_id'=>$this->id,
             'userName'=>$this->name,
             'profile_picture'=>asset('images/profile_pictures'.$this->profile_picture),
             'email'=>$this->email,

@@ -6,6 +6,7 @@ use App\Http\Controllers\user as userController;
 use App\Http\Resources\user as userResource;
 use App\Http\Controllers\addressesController;
 use App\Http\Controllers\countriesAndRegionsController;
+use App\Http\Controllers\checkOut;
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -30,6 +31,7 @@ Route::post('checkUserNameUsage',\App\Http\Controllers\checkUserNameIsntUser::cl
 Route::controller(userController::class)->group(function (){
     Route::post('register','register');
     Route::post('login','login');
+    Route::post('loginwithRememberToken','loginUsingRememberToken');
     Route::post('logout','logout')->middleware('auth:sanctum');
 });
 Route::post('addresses/{id}',[addressesController::class,'update'])->middleware('auth:sanctum');
@@ -38,4 +40,15 @@ Route::prefix('countries')->controller(countriesAndRegionsController::class)->gr
     Route::get('/','countries');
     Route::get('{id}/regions','regions');
 });
+Route::post('checkOut',checkOut::class)->middleware('auth:sanctum');
 Route::post('validatePhoneNumber',\App\Http\Controllers\ValidatePhoneNumber::class);
+Route::get('payment',function (Request $request){
+   if ($request['success']){
+       \App\Models\cart::where('user_id',\Illuminate\Support\Facades\Auth::id())->delete();
+       return redirect()->away('http://localhost:4200/cart?payment=true');
+   }
+   else  if(!$request['success']){
+       return redirect()->away('http://localhost:4200/cart?payment=false');
+   }
+});
+Route::post('successfulPayment',\App\Http\Controllers\handleSuccessfulPayment::class);

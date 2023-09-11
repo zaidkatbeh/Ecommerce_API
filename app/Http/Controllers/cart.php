@@ -20,9 +20,13 @@ class cart extends Controller
      */
     public function index()
     {
-        $fullCart=cartModel::with('items')->with('items.product')->with('items.product.image')->with('items.product.category')->where('user_id',Auth::id())->first();
+        $fullCart=cartModel::with('items')
+            ->where('user_id',Auth::id())
+            ->with('items.product')
+            ->with('items.product.image')->with('items.product.category')
+            ->first();
         if($fullCart==null)
-            return $this->errorResponse(message: "please log in to see your cart",statusCode: 401);
+            return $this->errorResponse(message: "you dont have a cart",statusCode: 418);
         return $this->successResponse(['cart'=>new cartResource($fullCart)]);
     }
 
@@ -87,7 +91,11 @@ class cart extends Controller
                 })->increment('quantity',1);
             }
             if($updateStatus==1){
-                $cart=new cartResource(cartModel::with('items')->with('items.product')->with('items.product.image')->where('user_id',Auth::id())->first());
+                $cart=new cartResource(cartModel::with('items')
+                    ->with('items.product')
+                    ->with('items.product.image')
+                    ->where('user_id',Auth::id())
+                    ->first());
             }
             else $cart=null;
             return $this->successResponse(['update_status'=>$updateStatus,'cart'=>$cart]);
@@ -101,7 +109,7 @@ class cart extends Controller
     {
         $deletionStatus = cartItem::where('id', $id)->whereHas('cart', function ($query) {
             $query->where('user_id', Auth::id());
-        })->forceDelete();
+        })->delete();
         $cart=cartModel::with('items')->with('items.product')->where('user_id',Auth::id())->first();
         return $this->successResponse(['deletion_status'=>$deletionStatus,'cart'=>new cartResource($cart)]);
     }

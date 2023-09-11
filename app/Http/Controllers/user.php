@@ -9,6 +9,7 @@ use App\Http\Requests\register as RegisterRequest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
 
 class user extends Controller
 {
@@ -46,10 +47,31 @@ class user extends Controller
             'password.regex'=>'the password must contain at least one uppercase char,one lowercase chart and a number',
             'email.exists'=>'wrong cardinalities',
             ]);
-        if (Auth::attempt(['email'=>$request['email'],'password'=>$request['password']]))
+
+        if (Auth::attempt(['email'=>$request['email'],'password'=>$request['password']],$request['remember_me']))
         {
             Auth::user()->token=Auth::user()->createToken('AuthToken');
-            return $this->successResponse(['user'=>new UserResource(Auth::user())]);
+            if($request['remember_me'])
+            {
+                return $this->successResponse(['user'=>new UserResource(Auth::user()),'remember_me_token'=>Auth::user()->getRememberToken()]);
+            }
+            else
+                return $this->successResponse(['user'=>new UserResource(Auth::user())]);
+        }
+        else
+            return $this->errorResponse(statusCode: 400, message: "wrong cardinalities");
+    }
+    public function loginUsingRememberToken(Request $request){
+        $request->validate([
+            'userID'=>'required|exists:users,id',
+            'remember_token'=>'required|string'
+        ]);
+        $user=UserModel::find($request['userID']);
+        if($user&& hash_equals($user->getRememberToken(),$request['remember_token']))
+        {
+            $user->token=$user->createToken('AuthToken');
+            return $this->successResponse(['user'=>new UserResource($user),'remember_me_token'=>$user->getRememberToken()]);
+
         }
         else
             return $this->errorResponse(statusCode: 400, message: "wrong cardinalities");

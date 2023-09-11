@@ -17,6 +17,8 @@ return new class extends Migration
             $table->string('description',255);
             $table->integer('price');
             $table->integer('quantity');
+            $table->string('stripe_product_id',200);
+
             $table->foreignId('category_id')->references('id')->on('categories');
             $table->timestamps();
         });
