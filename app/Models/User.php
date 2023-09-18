@@ -3,6 +3,7 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -21,6 +22,7 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'email_verified_at',
     ];
 
     /**
@@ -32,6 +34,10 @@ class User extends Authenticatable
         'password',
         'remember_token',
     ];
+    public function verifyEmail(){
+        $this->attributes['email_verified_at']=Carbon::now();
+        $this->save();
+    }
 
     /**
      * The attributes that should be cast.

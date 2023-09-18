@@ -19,6 +19,7 @@ class user extends JsonResource
             'userName'=>$this->name,
             'profile_picture'=>asset('images/profile_pictures'.$this->profile_picture),
             'email'=>$this->email,
+            'account_activate'=>!!$this->email_verified_at,
             'Auth_token'=>$this->token?$this->token->plainTextToken:null
         ];
     }

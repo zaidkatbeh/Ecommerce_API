@@ -26,10 +26,10 @@ class Handler extends ExceptionHandler
      */
     public function register(): void
     {
-        $this->reportable(function (\Exception $e,Request $request) {
-            if ($request->is('api/*')) {
-                return $this->errorResponse(statusCode: 500, message: 'an error accorded');
-            }
-        });
+//        $this->reportable(function (\Exception $e,Request $request) {
+//            if ($request->is('api/*')) {
+//                return $this->errorResponse(statusCode: 500, message: 'an error accorded');
+//            }
+//        });
     }
 }

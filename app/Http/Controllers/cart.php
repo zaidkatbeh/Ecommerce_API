@@ -14,11 +14,20 @@ use Illuminate\Support\Facades\Auth;
 
 class cart extends Controller
 {
+
+
     use responseTrait;
+
+    public function __construct(Request $request){
+        if(!$request->isMethod('get')){
+            $this->middleware('AccountVerified');
+        }
+    }
     /**
      * Display a listing of the resource.
      */
-    public function index()
+
+    public function index(Request $request)
     {
         $fullCart=cartModel::with('items')
             ->where('user_id',Auth::id())

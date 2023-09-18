@@ -51,7 +51,7 @@ class user extends Controller
         if (Auth::attempt(['email'=>$request['email'],'password'=>$request['password']],$request['remember_me']))
         {
             Auth::user()->token=Auth::user()->createToken('AuthToken');
-            if($request['remember_me'])
+            if(!!$request['remember_me']&&Auth::user()->email_verified_at)
             {
                 return $this->successResponse(['user'=>new UserResource(Auth::user()),'remember_me_token'=>Auth::user()->getRememberToken()]);
             }
