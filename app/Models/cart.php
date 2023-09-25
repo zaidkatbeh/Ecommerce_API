@@ -11,7 +11,8 @@ class cart extends Model
     use HasFactory,SoftDeletes;
     protected $fillable=[
         'product_id',
-        'user_id'
+        'user_id',
+        'deleted_at'
     ];
     public function product(){
         return $this->belongsTo(User::class,'user_id','id');

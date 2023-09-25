@@ -24,7 +24,6 @@ class products extends Controller
         else
             $products=$products->paginate(12);
         return productsResource::collection($products);
-        return $products;
     }
 
     /**

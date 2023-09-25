@@ -44,23 +44,33 @@ class cart extends Controller
      */
     public function store(addToCartRequest $request)
     {
-        if(!$request['product']||empty($request['product']))
-            return $this->errorResponse(statusCode: 400, message: 'please select a product');
+
         $product=product::find($request['product']);
         if(!$product)
             return $this->errorResponse(statusCode: 400, message: 'there is no product with this number');
+        $quantity=1;
+        if($request['quantity'])
+            $quantity=$request['quantity'];
+        if($product->quantity-$quantity<0)
+            return $this->errorResponse(statusCode: 422,message:"this product is out of stock");
        $cart= cartModel::firstOrCreate([
            'user_id'=>Auth::id(),
         ]);
-       $quantity=1;
-       if(gettype($request['quantity'])=='integer')
-           $quantity=$request['quantity'];
+        $cart_item=cartItemModel::where('cart_id',$cart->id)
+            ->where('product_id',$request['product'])
+            ->first();
+        if(!$cart_item)
        cartItemModel::create([
            'cart_id'=>$cart->id,
            'product_id'=>$request['product'],
            'price'=>$product->price,
-           'quantity'=>$quantity,
+           'quantity'=>$quantity
        ]);
+        else {
+            $cart_item->quantity=+$cart_item->quantity+$quantity;
+            $cart_item->save();
+        }
+
             $fullCart=new cartResource(cartModel::with('items')->with('items.product')->with('items.product.image')->where('user_id',Auth::id())->find($cart->id));
 
            return $this->successResponse(['cart'=> $fullCart]);

@@ -26,10 +26,13 @@ class checkOut extends Controller
             ->where('carts.deleted_at',null)
             ->join('cart_items','carts.id','cart_items.cart_id')
             ->join('products','cart_items.product_id','products.id')
-            ->select('cart_items.quantity','products.stripe_product_id as price')
+            ->select('cart_items.quantity','products.stripe_product_id as price','products.quantity as stock','products.name as product_name')
             ->get();
         $items=[];
+
         foreach ($cart as $cart_item) {
+            if($cart_item->stock<$cart_item->quantity)
+                return $this->errorResponse(statusCode: 422,message: "the product ".$cart_item->product_name.($cart_item->stock-$cart_item->quantity==0?"is out of stock":"has only ".$cart_item->stock." in stock")." please remove it and prosed");
             array_push($items,[
                 'price'=>$cart_item->price,
                 'quantity'=>$cart_item->quantity

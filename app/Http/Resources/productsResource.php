@@ -20,7 +20,7 @@ class productsResource extends JsonResource
             'name'=>$this->name,
             'description'=>$this->description,
             'price'=>$this->price,
-            'stock'=>$this->quantity,
+            'stock'=>$this->quantity>0,
             'category_id'=>$this->category_id,
             'date'=>$this->updated_at,
             'image_link'=>$this->transformImage($this->image)

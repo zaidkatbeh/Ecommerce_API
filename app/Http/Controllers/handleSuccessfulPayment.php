@@ -3,9 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Http\traits\responseTrait;
+use App\Models\product;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Laravel\Sanctum\PersonalAccessToken;
 use Stripe\Stripe;
@@ -38,9 +40,31 @@ class handleSuccessfulPayment extends Controller
             $userToken = $event->data->object->metadata->user_token;
 
             $user=PersonalAccessToken::findToken($userToken)->tokenable()->first('id');
-            Log::info($user);
-            $cart=\App\Models\cart::where('user_id',$user->id)->delete();
+            Log::info('the user id is : '.$user->id);
+            $cart=\App\Models\cart::where('user_id',$user->id)
+                ->whereNull('deleted_at')
+                ->first();
+            Log::info('--------------------------------------------the cart');
+            Log::info($cart);
+
+            $cartItems=DB::table('cart_items')
+                ->where('cart_id',$cart->id)
+                ->select('quantity','product_id')
+                ->get();
+            Log::info('----------cart items');
+            Log::info($cartItems);
+            foreach ($cartItems as $cartItem){
+                DB::table('products')
+                    ->where('id',$cartItem->product_id)
+                    ->decrement('quantity',+$cartItem->quantity);
+            }
+//            DB::table('products')
+//                ->join('cart_items', 'products.id', '=', 'cart_items.product_id')
+//                ->join('carts', 'cart_items.cart_id', '=', 'carts.id')
+//                ->where('carts.id',$cart->id)
+//                ->decrement('products.quantity', amount: 'cart_items.quantity');
             Log::info("_____________________________________________");
+            $cart->delete();
             Log::info($cart);
         }
 
