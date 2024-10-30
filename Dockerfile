@@ -6,9 +6,16 @@ RUN apt-get clean && rm -rf /var/lib/apt/lists/*
 RUN a2enmod rewrite
 
 RUN apt-get update && apt-get install -y \
-    zip \
-    unzip \
-    openssl
+    libicu-dev \
+    libmariadb-dev \
+    unzip zip \
+    zlib1g-dev \
+    libpng-dev \
+    libjpeg-dev \
+    libfreetype6-dev \
+    libjpeg62-turbo-dev \
+    libpng-dev  \
+    && docker-php-ext-install pdo pdo_mysql 
 
 # Configure Apache DocumentRoot to point to Laravel's public directory
 # and update Apache configuration files
